@@ -108,7 +108,6 @@ function generatePhotos() {
   }
   return photos;
 }
-const userPhotos = generatePhotos();
-console.log(userPhotos);
+generatePhotos();
 
 
