@@ -30,8 +30,9 @@ const renderFullscreenPhoto = (photoData) => {
   const socialCaption = bigPicture.querySelector('.social__caption');
   const socialCommentCount = bigPicture.querySelector('.social__comment-count');
   const commentsLoader = bigPicture.querySelector('.comments-loader');
-  socialCommentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+
+  socialCommentCount.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
 
   bigImg.src = photoData.url;
   bigImg.alt = photoData.description;
@@ -41,10 +42,31 @@ const renderFullscreenPhoto = (photoData) => {
 
   socialComments.innerHTML = '';
 
-  photoData.comments.forEach((comment) => {
-    const commentElement = createCommentElement(comment);
-    socialComments.appendChild(commentElement);
-  });
+  let shownComments = 0;
+  const COMMENTS_PER_PAGE = 5;
+  const renderCommentsPage = () => {
+    const commentsToShow = photoData.comments.slice(shownComments, shownComments + COMMENTS_PER_PAGE);
+
+    commentsToShow.forEach((comment) => {
+      const commentElement = createCommentElement(comment);
+      socialComments.appendChild(commentElement);
+    });
+
+    shownComments += commentsToShow.length;
+    socialCommentCount.innerHTML = `${shownComments} из <span class="comments-count">${photoData.comments.length}</span> комментариев`;
+
+    if (shownComments >= photoData.comments.length) {
+      commentsLoader.classList.add('hidden');
+    }
+  };
+
+  renderCommentsPage();
+  const onCommentsLoaderClick = () => {
+    renderCommentsPage();
+  };
+
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
+  bigPicture._commentsLoaderHandler = onCommentsLoaderClick;
 
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -52,6 +74,13 @@ const renderFullscreenPhoto = (photoData) => {
 
 const closeFullscreenPhoto = () => {
   const bigPicture = document.querySelector('.big-picture');
+  const commentsLoader = bigPicture.querySelector('.comments-loader');
+
+  if (bigPicture._commentsLoaderHandler) {
+    commentsLoader.removeEventListener('click', bigPicture._commentsLoaderHandler);
+    delete bigPicture._commentsLoaderHandler;
+  }
+
   bigPicture.classList.add('hidden');
   document.body.classList.remove('modal-open');
 };
