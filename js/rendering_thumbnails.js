@@ -28,7 +28,9 @@ const renderThumbnails = (picturesList, picturesContainer) => {
     renderFragment.appendChild(thumbnail);
   });
 
-  picturesContainer.innerHTML = '';
+  const oldThumbnails = picturesContainer.querySelectorAll('.picture');
+  oldThumbnails.forEach((thumb) => thumb.remove());
+
   picturesContainer.appendChild(renderFragment);
 };
 
