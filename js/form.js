@@ -31,7 +31,7 @@ if (typeof Pristine !== 'undefined') {
 }
 
 // Настройки эффектов
-const EFFECTS = {
+const effects = {
   none: {
     min: 0,
     max: 100,
@@ -113,7 +113,7 @@ function applyEffect(value) {
     return;
   }
 
-  const effect = EFFECTS[currentEffect];
+  const effect = effects[currentEffect];
   previewImage.style.filter = `${effect.filter}(${value}${effect.unit})`;
 }
 
@@ -122,11 +122,11 @@ function initSlider() {
   if (typeof noUiSlider !== 'undefined') {
     slider = noUiSlider.create(effectLevelSlider, {
       range: {
-        min: EFFECTS[currentEffect].min,
-        max: EFFECTS[currentEffect].max
+        min: effects[currentEffect].min,
+        max: effects[currentEffect].max
       },
-      start: EFFECTS[currentEffect].max,
-      step: EFFECTS[currentEffect].step,
+      start: effects[currentEffect].max,
+      step: effects[currentEffect].step,
       connect: 'lower'
     });
 
@@ -142,11 +142,11 @@ function updateSlider() {
   if (slider) {
     slider.updateOptions({
       range: {
-        min: EFFECTS[currentEffect].min,
-        max: EFFECTS[currentEffect].max
+        min: effects[currentEffect].min,
+        max: effects[currentEffect].max
       },
-      start: EFFECTS[currentEffect].max,
-      step: EFFECTS[currentEffect].step
+      start: effects[currentEffect].max,
+      step: effects[currentEffect].step
     });
   }
 }
@@ -156,7 +156,7 @@ function onEffectChange(evt) {
     currentEffect = evt.target.value;
 
     if (slider) {
-      slider.set(EFFECTS[currentEffect].max);
+      slider.set(effects[currentEffect].max);
     }
 
     updateSlider();
@@ -167,7 +167,7 @@ function onEffectChange(evt) {
       effectLevelContainer.classList.remove('hidden');
     }
 
-    applyEffect(EFFECTS[currentEffect].max);
+    applyEffect(effects[currentEffect].max);
   }
 }
 
@@ -441,4 +441,3 @@ function initUploadForm() {
 }
 
 export { initUploadForm, closeUploadForm };
-// Все задания выполнены
