@@ -2,6 +2,7 @@ import { getData } from './api.js';
 import { renderThumbnails } from './rendering_thumbnails.js';
 import { initFullscreenView } from './fullscreen.js';
 import { initUploadForm } from './form.js';
+import { initFilters } from './filters.js';
 
 const ALERT_SHOW_TIME = 5000;
 
@@ -34,6 +35,7 @@ const loadPhotos = async () => {
     const picturesContainer = document.querySelector('.pictures');
     renderThumbnails(userPhotos, picturesContainer);
     initFullscreenView();
+    initFilters(userPhotos);
   } catch (error) {
     showAlert(error.message);
     userPhotos = [];

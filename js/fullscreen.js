@@ -90,16 +90,18 @@ const onThumbnailClick = (photoData) => {
 };
 
 const initFullscreenView = () => {
-  const thumbnails = document.querySelectorAll('.picture');
-  thumbnails.forEach((thumbnail) => {
-    thumbnail.addEventListener('click', (evt) => {
+  const picturesContainer = document.querySelector('.pictures');
+
+  picturesContainer.addEventListener('click', (evt) => {
+    const thumbnail = evt.target.closest('.picture');
+    if (thumbnail) {
       evt.preventDefault();
       const currentId = parseInt(thumbnail.dataset.id, 10);
       const currentData = userPhotos.find((item) => item.id === currentId);
       if (currentData) {
         onThumbnailClick(currentData);
       }
-    });
+    }
   });
 
   closeButtonElement.addEventListener('click', () => {
