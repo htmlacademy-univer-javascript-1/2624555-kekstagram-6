@@ -1,15 +1,15 @@
 import { getRandomInteger, getRandomArrayElement } from './util.js';
-import { NAMES, MESSAGES, DESCRIPTIONS } from './data.js';
+import { names, messages, descriptions } from './data.js';
 
 // Создание случайного сообщения
 function generateMessage() {
   const messageCount = getRandomInteger(1, 2);
-  const messages = [];
+  const generatedMessages = [];  // Изменили имя переменной
   for (let i = 0; i < messageCount; i++) {
-    const randomMessage = getRandomArrayElement(MESSAGES);
-    messages.push(randomMessage);
+    const randomMessage = getRandomArrayElement(messages);
+    generatedMessages.push(randomMessage);
   }
-  return messages.join(' ');
+  return generatedMessages.join(' ');  // Используем новое имя
 }
 
 // Функция для создания уникальных ID (для комментариев)
@@ -33,7 +33,7 @@ function createComment() {
     id: generateCommentId(),
     avatar: `img/avatar-${getRandomInteger(1, 6)}.svg`,
     message: generateMessage(),
-    name: getRandomArrayElement(NAMES)
+    name: getRandomArrayElement(names)
   };
   return comment;
 }
@@ -49,7 +49,7 @@ function createPhoto(photoId) {
   const photo = {
     id: photoId,
     url: `photos/${photoId}.jpg`,
-    description: getRandomArrayElement(DESCRIPTIONS),
+    description: getRandomArrayElement(descriptions),
     likes: getRandomInteger(15, 200),
     comments: comments
   };
