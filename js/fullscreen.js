@@ -1,4 +1,6 @@
-import { userPhotos } from './main.js';
+import { getUserPhotos } from './main.js';
+
+const COMMENTS_PER_PAGE = 5;
 
 const bigPictureElement = document.querySelector('.big-picture');
 const bigImgElement = bigPictureElement.querySelector('.big-picture__img img');
@@ -9,8 +11,6 @@ const socialCaptionElement = bigPictureElement.querySelector('.social__caption')
 const socialCommentCountElement = bigPictureElement.querySelector('.social__comment-count');
 const commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
 const closeButtonElement = bigPictureElement.querySelector('.big-picture__cancel');
-
-const COMMENTS_PER_PAGE = 5;
 
 const createCommentElement = (comment) => {
   const commentElement = document.createElement('li');
@@ -31,6 +31,25 @@ const createCommentElement = (comment) => {
   commentElement.appendChild(commentText);
 
   return commentElement;
+};
+
+const createCountSpan = (count) => {
+  const span = document.createElement('span');
+  span.className = 'comments-count';
+  span.textContent = count;
+  return span;
+};
+
+const updateCommentCounter = (shown, total) => {
+  socialCommentCountElement.textContent = '';
+
+  const shownText = document.createTextNode(`${shown} из `);
+  const totalSpan = createCountSpan(total);
+  const commentText = document.createTextNode(' комментариев');
+
+  socialCommentCountElement.appendChild(shownText);
+  socialCommentCountElement.appendChild(totalSpan);
+  socialCommentCountElement.appendChild(commentText);
 };
 
 const renderFullscreenPhoto = (photoData) => {
@@ -55,7 +74,8 @@ const renderFullscreenPhoto = (photoData) => {
     });
 
     shownComments += commentsToShow.length;
-    socialCommentCountElement.innerHTML = `${shownComments} из <span class="comments-count">${photoData.comments.length}</span> комментариев`;
+    updateCommentCounter(shownComments, photoData.comments.length);
+
     if (shownComments >= photoData.comments.length) {
       commentsLoaderElement.classList.add('hidden');
     }
@@ -81,6 +101,11 @@ const closeFullscreenPhoto = () => {
     delete bigPictureElement._commentsLoaderHandler;
   }
 
+  if (bigPictureElement._escapeHandler) {
+    document.removeEventListener('keydown', bigPictureElement._escapeHandler);
+    delete bigPictureElement._escapeHandler;
+  }
+
   bigPictureElement.classList.add('hidden');
   document.body.classList.remove('modal-open');
 };
@@ -97,7 +122,7 @@ const initFullscreenView = () => {
     if (thumbnail) {
       evt.preventDefault();
       const currentId = parseInt(thumbnail.dataset.id, 10);
-      const currentData = userPhotos.find((item) => item.id === currentId);
+      const currentData = getUserPhotos().find((item) => item.id === currentId);
       if (currentData) {
         onThumbnailClick(currentData);
       }
@@ -108,11 +133,14 @@ const initFullscreenView = () => {
     closeFullscreenPhoto();
   });
 
-  document.addEventListener('keydown', (evt) => {
+  const onDocumentKeydown = (evt) => {
     if (evt.key === 'Escape') {
       closeFullscreenPhoto();
     }
-  });
+  };
+
+  bigPictureElement._escapeHandler = onDocumentKeydown;
+  document.addEventListener('keydown', onDocumentKeydown);
 };
 
 export { initFullscreenView };

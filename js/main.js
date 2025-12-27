@@ -1,5 +1,5 @@
 import { getData } from './api.js';
-import { renderThumbnails } from './rendering_thumbnails.js';
+import { renderThumbnails } from './rendering-thumbnails.js';
 import { initFullscreenView } from './fullscreen.js';
 import { initUploadForm } from './form.js';
 import { initFilters } from './filters.js';
@@ -47,4 +47,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initUploadForm();
 });
 
-export { userPhotos };
+export function getUserPhotos() {
+  return userPhotos;
+}

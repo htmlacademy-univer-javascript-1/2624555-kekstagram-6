@@ -1,11 +1,12 @@
 import { debounce } from './util.js';
-import { renderThumbnails } from './rendering_thumbnails.js';
+import { renderThumbnails } from './rendering-thumbnails.js';
 
 const RANDOM_PHOTOS_COUNT = 10;
 
 let currentFilter = 'default';
 let originalPhotos = [];
 let filteredPhotos = [];
+let activeFilterButton = null;
 
 const filterDefault = () => [...originalPhotos];
 
@@ -54,11 +55,12 @@ const initFilters = (photos) => {
   const filterButtons = document.querySelectorAll('.img-filters__button');
 
   const onFilterButtonClick = (evt) => {
-    filterButtons.forEach((button) => {
-      button.classList.remove('img-filters__button--active');
-    });
+    if (activeFilterButton) {
+      activeFilterButton.classList.remove('img-filters__button--active');
+    }
 
     evt.target.classList.add('img-filters__button--active');
+    activeFilterButton = evt.target;
 
     currentFilter = evt.target.id.replace('filter-', '');
 
@@ -66,6 +68,10 @@ const initFilters = (photos) => {
   };
 
   filterButtons.forEach((button) => {
+    if (button.id === 'filter-default') {
+      button.classList.add('img-filters__button--active');
+      activeFilterButton = button;
+    }
     button.addEventListener('click', onFilterButtonClick);
   });
 
