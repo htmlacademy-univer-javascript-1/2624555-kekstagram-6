@@ -1,35 +1,5 @@
 import { sendData } from './api.js';
 
-const uploadForm = document.querySelector('.img-upload__form');
-const uploadInput = document.querySelector('.img-upload__input');
-const uploadOverlay = document.querySelector('.img-upload__overlay');
-const uploadCancel = document.querySelector('.img-upload__cancel');
-const hashtagsInput = uploadForm.querySelector('.text__hashtags');
-const descriptionInput = uploadForm.querySelector('.text__description');
-const submitButton = uploadForm.querySelector('.img-upload__submit');
-
-// Элементы для масштабирования
-const scaleSmaller = uploadOverlay.querySelector('.scale__control--smaller');
-const scaleBigger = uploadOverlay.querySelector('.scale__control--bigger');
-const scaleValue = uploadOverlay.querySelector('.scale__control--value');
-const previewImage = uploadOverlay.querySelector('.img-upload__preview img');
-
-// Элементы для эффектов
-const effectsList = uploadOverlay.querySelector('.effects__list');
-const effectLevelContainer = uploadOverlay.querySelector('.img-upload__effect-level');
-const effectLevelValue = uploadOverlay.querySelector('.effect-level__value');
-const effectLevelSlider = uploadOverlay.querySelector('.effect-level__slider');
-
-// Инициализация Pristine
-let pristine = null;
-if (typeof Pristine !== 'undefined') {
-  pristine = new Pristine(uploadForm, {
-    classTo: 'img-upload__field-wrapper',
-    errorTextParent: 'img-upload__field-wrapper',
-    errorTextClass: 'img-upload__field-wrapper--error'
-  });
-}
-
 // Настройки эффектов
 const effects = {
   none: {
@@ -76,15 +46,47 @@ const effects = {
   }
 };
 
-let currentEffect = 'none';
-let slider = null;
-
-// Масштабирование
 const SCALE_STEP = 25;
 const SCALE_MIN = 25;
 const SCALE_MAX = 100;
-let currentScale = 100;
 
+const hashtagErrors = {
+  lastError: null
+};
+
+const uploadForm = document.querySelector('.img-upload__form');
+const uploadInput = document.querySelector('.img-upload__input');
+const uploadOverlay = document.querySelector('.img-upload__overlay');
+const uploadCancel = document.querySelector('.img-upload__cancel');
+const hashtagsInput = uploadForm.querySelector('.text__hashtags');
+const descriptionInput = uploadForm.querySelector('.text__description');
+const submitButton = uploadForm.querySelector('.img-upload__submit');
+
+// Элементы для масштабирования
+const scaleSmaller = uploadOverlay.querySelector('.scale__control--smaller');
+const scaleBigger = uploadOverlay.querySelector('.scale__control--bigger');
+const scaleValue = uploadOverlay.querySelector('.scale__control--value');
+const previewImage = uploadOverlay.querySelector('.img-upload__preview img');
+
+// Элементы для эффектов
+const effectsList = uploadOverlay.querySelector('.effects__list');
+const effectLevelContainer = uploadOverlay.querySelector('.img-upload__effect-level');
+const effectLevelValue = uploadOverlay.querySelector('.effect-level__value');
+const effectLevelSlider = uploadOverlay.querySelector('.effect-level__slider');
+
+// Инициализация Pristine
+let pristine = null;
+if (typeof Pristine !== 'undefined') {
+  pristine = new Pristine(uploadForm, {
+    classTo: 'img-upload__field-wrapper',
+    errorTextParent: 'img-upload__field-wrapper',
+    errorTextClass: 'img-upload__field-wrapper--error'
+  });
+}
+
+let currentEffect = 'none';
+let slider = null;
+let currentScale = 100;
 let messageBlock = null;
 let closeMessage = function() {};
 
@@ -183,7 +185,7 @@ function parseTagsInput(input) {
 }
 
 // Проверка формата одного тега
-function isValidTagFormat(tag) {
+function validateTagFormat(tag) {
   if (tag[0] !== '#') {
     return false;
   }
@@ -198,6 +200,8 @@ function isValidTagFormat(tag) {
 
 // Валидация хэш-тегов
 function validateHashtags(value) {
+  hashtagErrors.lastError = null;
+
   const tags = parseTagsInput(value);
 
   if (tags.length === 0) {
@@ -210,15 +214,15 @@ function validateHashtags(value) {
   }
 
   for (const tag of tags) {
-    if (!isValidTagFormat(tag)) {
+    if (!validateTagFormat(tag)) {
       validateHashtags.lastError = `Неправильный формат тега "${tag}". Тег должен начинаться с # и содержать только буквы и цифры, длина до 20 символов.`;
       return false;
     }
   }
 
-  const lowered = tags.map((t) => t.toLowerCase());
-  const unique = new Set(lowered);
-  if (unique.size !== lowered.length) {
+  const lowercasedTags = tags.map((t) => t.toLowerCase());
+  const unique = new Set(lowercasedTags);
+  if (unique.size !== lowercasedTags.length) {
     validateHashtags.lastError = 'Один и тот же хэш-тег не может быть использован дважды.';
     return false;
   }
@@ -227,7 +231,7 @@ function validateHashtags(value) {
 }
 
 // Сообщение об ошибке для хэш-тегов
-function hashtagsErrorMessage() {
+function getHashtagsErrorMessage() {
   return validateHashtags.lastError || 'Неправильный формат хэш-тегов.';
 }
 
@@ -380,7 +384,7 @@ function closeUploadForm() {
 
 function initUploadForm() {
   if (pristine) {
-    pristine.addValidator(hashtagsInput, validateHashtags, hashtagsErrorMessage);
+    pristine.addValidator(hashtagsInput, validateHashtags, getHashtagsErrorMessage);
     pristine.addValidator(descriptionInput, validateDescription, 'Длина комментария не может превышать 140 символов.');
   }
 
