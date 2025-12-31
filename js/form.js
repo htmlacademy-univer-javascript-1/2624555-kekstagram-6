@@ -74,6 +74,9 @@ const effectLevelContainer = uploadOverlay.querySelector('.img-upload__effect-le
 const effectLevelValue = uploadOverlay.querySelector('.effect-level__value');
 const effectLevelSlider = uploadOverlay.querySelector('.effect-level__slider');
 
+// Превью эффектов (span элементы с классом .effects__preview)
+const effectPreviews = uploadOverlay.querySelectorAll('.effects__preview');
+
 // Инициализация Pristine
 let pristine = null;
 if (typeof Pristine !== 'undefined') {
@@ -89,6 +92,14 @@ let slider = null;
 let currentScale = 100;
 let messageBlock = null;
 let closeMessage = function() {};
+
+// Функция для обновления всех превью эффектов
+function updateEffectPreviews(imageSrc) {
+  effectPreviews.forEach((preview) => {
+    preview.style.backgroundImage = `url(${imageSrc})`;
+    preview.style.backgroundSize = 'cover';
+  });
+}
 
 function updateScale() {
   scaleValue.value = `${currentScale}%`;
@@ -278,7 +289,10 @@ function resetFormToInitialState() {
 
   uploadInput.value = '';
 
-  previewImage.src = 'img/upload-default-image.jpg';
+  // Сбрасываем основное превью и превью эффектов на дефолтное изображение
+  const defaultImage = 'img/upload-default-image.jpg';
+  previewImage.src = defaultImage;
+  updateEffectPreviews(defaultImage);
 
   if (pristine) {
     pristine.reset();
@@ -400,7 +414,9 @@ function initUploadForm() {
       const reader = new FileReader();
 
       reader.onload = (evt) => {
-        previewImage.src = evt.target.result;
+        const imageSrc = evt.target.result;
+        previewImage.src = imageSrc;
+        updateEffectPreviews(imageSrc); // Обновляем превью эффектов
         openUploadForm();
       };
 
