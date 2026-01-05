@@ -102,6 +102,7 @@ function updateEffectPreviews(imageSrc) {
 }
 
 function updateScale() {
+  scaleValue.setAttribute('value', `${currentScale}%`);
   scaleValue.value = `${currentScale}%`;
   previewImage.style.transform = `scale(${currentScale / 100})`;
 }
