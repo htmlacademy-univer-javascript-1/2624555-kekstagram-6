@@ -90,8 +90,6 @@ if (typeof Pristine !== 'undefined') {
 let currentEffect = 'none';
 let slider = null;
 let currentScale = 100;
-let messageBlock = null;
-let closeMessage = function() {};
 
 // Функция для обновления всех превью эффектов
 function updateEffectPreviews(imageSrc) {
@@ -302,58 +300,65 @@ function resetFormToInitialState() {
   submitButton.disabled = false;
 }
 
-// Обработчики клавиш для сообщений
-function onEscapeKeydown(evt) {
-  if (evt.key === 'Escape') {
-    closeMessage();
-  }
-}
-
-function onClickOutside(evt) {
-  if (messageBlock && !messageBlock.contains(evt.target)) {
-    closeMessage();
-  }
-}
-
 // Функции для показа/скрытия сообщений
-function showMessage(templateId, closeCallback) {
+function showMessage(templateId, onClose) {
   const template = document.querySelector(`#${templateId}`);
   if (!template) {
     return;
   }
 
-  const messageElement = template.content.cloneNode(true);
-  messageBlock = messageElement.querySelector(`.${templateId}`);
+  const fragment = template.content.cloneNode(true);
+  const message = fragment.querySelector(`.${templateId}`);
+  const inner = message.querySelector(`.${templateId}__inner`);
 
-  if (!messageBlock) {
-    return;
+  document.body.append(message);
+
+  function close(callOnClose = false) {
+    message.remove();
+    document.removeEventListener('keydown', onEscKeydown, true);
+
+    if (callOnClose && onClose) {
+      onClose();
+    }
   }
 
-  document.body.append(messageBlock);
+  function onEscKeydown(evt) {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
 
-  closeMessage = () => {
-    messageBlock.remove();
-    document.removeEventListener('keydown', onEscapeKeydown);
-    document.removeEventListener('click', onClickOutside);
-  };
-
-  const closeButton = messageBlock.querySelector(`.${templateId}__button`);
-  if (closeButton) {
-    closeButton.addEventListener('click', closeMessage);
+      if (templateId === 'success') {
+        close(true);
+      } else {
+        close(false);
+      }
+    }
   }
 
-  document.addEventListener('keydown', onEscapeKeydown);
-  document.addEventListener('click', onClickOutside);
+  // клик по фону
+  message.addEventListener('click', () => {
+    close(true);
+  });
 
-  if (closeCallback) {
-    closeCallback();
-  }
+  // клик внутри
+  inner.addEventListener('click', (evt) => {
+    evt.stopPropagation();
+  });
+
+  // кнопка
+  const button = message.querySelector(`.${templateId}__button`);
+  button.addEventListener('click', () => {
+    close(true);
+  });
+
+  document.addEventListener('keydown', onEscKeydown, true);
 }
+
 
 function showSuccessMessage() {
   showMessage('success', () => {
-    resetFormToInitialState();
     closeUploadForm();
+    resetFormToInitialState();
   });
 }
 
